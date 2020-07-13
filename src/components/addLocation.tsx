@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-import Location from '../interfaces/Location';
-
 interface LocationItemProps {
   item: Location;
   index: number;
@@ -26,19 +24,7 @@ class LocationItem extends React.Component<LocationItemProps, {}> {
 
     // return location name and error message
     return (
-      <div className="location-item">
-        <h2>{item.name}</h2>
-        <h3>Monday 17:00</h3>
-        <div
-          className="button remove"
-          color="secondary"
-          onClick={() => {
-            this.handleRemoval(index);
-          }}
-        >
-          Remove
-        </div>
-      </div>
+      <div className="addLocation"></div>
     );
   }
 }

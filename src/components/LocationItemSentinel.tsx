@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import Location from '../interfaces/Location';
+import LocationItem from './LocationItem';
 
 interface LocationItemProps {
   item: Location;
@@ -8,7 +9,7 @@ interface LocationItemProps {
   removeLocation: (index: number) => void;
 }
 
-class LocationItem extends React.Component<LocationItemProps, {}> {
+class LocationItemSentinel extends LocationItem {
   constructor(props: any) {
     super(props);
 
@@ -26,7 +27,7 @@ class LocationItem extends React.Component<LocationItemProps, {}> {
 
     // return location name and error message
     return (
-      <div className="location-item">
+      <div className="sentinel">
         <h2>{item.name}</h2>
         <h3>Monday 17:00</h3>
         <div
@@ -43,4 +44,4 @@ class LocationItem extends React.Component<LocationItemProps, {}> {
   }
 }
 
-export default LocationItem;
+export default LocationItemSentinel;
