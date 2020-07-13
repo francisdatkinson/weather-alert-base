@@ -6,6 +6,7 @@ import * as locationsActions from '../actions/locationsActions';
 import AppState from '../interfaces/AppState';
 import LocationForm from '../forms/LocationForm';
 import LocationItem from '../components/LocationItem';
+import LocationItemSentinel from '../components/LocationItem';
 import LocationsState from '../interfaces/LocationsState';
 
 interface HomePageProps {
@@ -57,18 +58,40 @@ class HomePage extends React.Component<HomePageProps, {}> {
       return <LocationForm onSubmit={this.handleSubmit} />;
     }
 
+    let columns = Math.floor((window.innerWidth - (window.innerWidth * 0.03)) / 540);
+
+    let sentinels = [];
+
+    for (let i = 0; i < columns - 1; i++) {
+      sentinels.push('SENTINEL');
+    }
+
+    console.log(columns, sentinels);
+
     return (
       <>
         <LocationForm onSubmit={this.handleSubmit} />
-        {locations.locations.map((item, i) => (
-          <React.Fragment key={i}>
-            <LocationItem
-              item={item}
-              index={i}
-              removeLocation={this.removeLocation}
-            />
-          </React.Fragment>
-        ))}
+        <div className="location-list">
+          {locations.locations.map((item, i) => (
+            <React.Fragment key={i}>
+              <LocationItem
+                item={item}
+                index={i}
+                removeLocation={this.removeLocation}
+              />
+            </React.Fragment>
+          ))}
+
+          {sentinels.map((item, i) => (
+             <React.Fragment key={i}>
+             <LocationItemSentinel
+               item={{name: item}}
+               index={i}
+               removeLocation={this.removeLocation}
+             />
+           </React.Fragment>
+          ))}
+        </div>
       </>
     );
   }
