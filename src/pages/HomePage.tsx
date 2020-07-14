@@ -70,28 +70,33 @@ class HomePage extends React.Component<HomePageProps, {}> {
 
     return (
       <>
+      <header>
+        <h1>The Wind Forecast</h1>
         <LocationForm onSubmit={this.handleSubmit} />
-        <div className="location-list">
-          {locations.locations.map((item, i) => (
-            <React.Fragment key={i}>
-              <LocationItem
-                item={item}
-                index={i}
-                removeLocation={this.removeLocation}
-              />
-            </React.Fragment>
-          ))}
+        <hr />
+      </header>
+      <h2>Your Locations</h2>
+      <div className="location-list">
+        {locations.locations.map((item, i) => (
+          <React.Fragment key={i}>
+            <LocationItem
+              item={item}
+              index={i}
+              removeLocation={this.removeLocation}
+            />
+          </React.Fragment>
+        ))}
 
-          {sentinels.map((item, i) => (
-             <React.Fragment key={i}>
-             <LocationItemSentinel
-               item={{name: item}}
-               index={i}
-               removeLocation={this.removeLocation}
-             />
-           </React.Fragment>
-          ))}
-        </div>
+        {sentinels.map((item, i) => (
+            <React.Fragment key={i}>
+            <LocationItemSentinel
+              item={{name: item}}
+              index={i}
+              removeLocation={this.removeLocation}
+            />
+          </React.Fragment>
+        ))}
+      </div>
       </>
     );
   }

@@ -1,4 +1,5 @@
 import * as React from 'react';
+// import cities from '../assets/citylist.json';
 
 interface LocationFormProps {
   onSubmit: (location: any) => void;
@@ -7,11 +8,12 @@ interface LocationFormProps {
 class LocationForm extends React.Component<LocationFormProps> {
   state = {
     name: '',
+    cities: []
   };
 
   constructor(props: any) {
     super(props);
-    this.state = { name: '' };
+    this.state = { name: '', cities: [] };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -19,6 +21,8 @@ class LocationForm extends React.Component<LocationFormProps> {
 
   handleChange(event: any) {
     this.setState({ name: event.target.value });
+
+    
   }
 
   handleSubmit(event: any) {
@@ -35,14 +39,15 @@ class LocationForm extends React.Component<LocationFormProps> {
   render() {
     return (
       <form
+        className="search-bar"
         onSubmit={this.handleSubmit}
         noValidate
         autoCapitalize="on"
         autoComplete="off"
       >
-        <label htmlFor="name">Enter a location</label>
         <br />
         <input
+          placeholder="Enter a location"
           id="name"
           name="name"
           onChange={this.handleChange}
