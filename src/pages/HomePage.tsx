@@ -12,6 +12,7 @@ import LocationsState from '../interfaces/LocationsState';
 interface HomePageProps {
   locations: LocationsState;
   actions: any;
+  updateDate: Date;
 }
 
 class HomePage extends React.Component<HomePageProps, {}> {
@@ -43,6 +44,10 @@ class HomePage extends React.Component<HomePageProps, {}> {
     actions.getLocations();
   }
 
+  componentDidMount() {
+    this.setState({ updateDate: true });
+  }
+
   removeLocation(index: number) {
     const { actions } = this.props;
 
@@ -68,6 +73,30 @@ class HomePage extends React.Component<HomePageProps, {}> {
 
     console.log(columns, sentinels);
 
+    let updateDate = new Date("July 14, 2020, 12:15");
+    let now = new Date();
+    setInterval(function() {
+      now = new Date();
+    }, 1000);
+    
+
+    let date = `${(now.getDate())}/${(now.getMonth() + 1)}/${(now.getFullYear())}`;
+    let time = now.toString().substr(16, 8);
+
+    let ONE_SEC = 1000;
+    let ONE_MIN = 60 * 1000;
+    let ONE_HOUR = 60 * 60 * 1000;
+    let ONE_DAY = 24 * 60 * 60 * 1000;
+
+    let difference  = now.getTime() - updateDate.getTime();
+
+    let days = Math.floor(difference / ONE_DAY);
+    let hours = Math.floor((difference - (days * ONE_DAY)) / ONE_HOUR);
+    let mins = Math.floor((difference - ((days * ONE_DAY) + (hours * ONE_HOUR))) / ONE_MIN);
+    let secs = Math.floor((difference - ((days * ONE_DAY) + (hours * ONE_HOUR) + (mins * ONE_MIN))) / ONE_SEC);
+
+    console.log(difference, days * ONE_DAY, hours);
+
     return (
       <>
       <header>
@@ -75,6 +104,10 @@ class HomePage extends React.Component<HomePageProps, {}> {
         <LocationForm onSubmit={this.handleSubmit} />
         <hr />
       </header>
+      <div className="meta-info">
+        <p className="date"><span>{date}, {time}</span></p>
+        <p className="last-updated">Last updated: <span>{days > 0 ? days + 'd ' : ''}{hours > 0 ? hours + 'h ' : ''}{mins > 0 ? mins + 'm ' : ''}{secs > 0 ? secs + 's ' : ''}</span></p>
+      </div>
       <h2>Your Locations</h2>
       <div className="location-list">
         {locations.locations.map((item, i) => (
