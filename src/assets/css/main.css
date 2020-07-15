@@ -74,7 +74,7 @@ p {
 
 h1 {
   text-align: center;
-  margin: 1rem 0 2rem 0; 
+  margin: 2.5rem 0 1.2rem 0; 
   font-size: 3em;
   font-weight: 300;
   letter-spacing: 2px;
@@ -218,6 +218,7 @@ header {
   justify-content: center;
   align-items: center;
   color: #5B5B5B;
+  transition: all 1s cubic-bezier(0.480, -0.5, 0.375, 1.5);
 }
 
 .wind-direction p {

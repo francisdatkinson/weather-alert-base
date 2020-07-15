@@ -27,6 +27,7 @@ class LocationForm extends React.Component<LocationFormProps> {
 
   handleSubmit(event: any) {
     const { onSubmit } = this.props;
+    
     event.preventDefault();
 
     onSubmit(this.state);
@@ -34,6 +35,31 @@ class LocationForm extends React.Component<LocationFormProps> {
     this.setState({
       name: '',
     });
+
+    
+
+    let city = event;
+    let url= `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&APPID=f52f54c7903f2276bf1ab68f6b8af2b2`;
+
+    fetch(url)
+      .then(
+        function(response) {
+          if (response.status !== 200) {
+            console.log('Looks like there was a problem. Status Code: ' +
+              response.status);
+            return;
+          }
+
+          // Examine the text in the response
+          response.json().then(function(data) {
+            // setState({data: data});
+            console.log(data.name);
+          });
+        }
+      )
+      .catch(function(err) {
+        console.log('Fetch Error :-S', err);
+      });
   }
 
   render() {
