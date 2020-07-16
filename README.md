@@ -14,8 +14,9 @@
 - Adding an invalid location (anything that isn't a city/country/area name) will crash the site. Thisw can only be recovered by clearing browser cookies then refreshing the site. This is due to an incomplete attempt to validate names on input, rejecting invalid values.
 - When removing locations, the final item from the list will be removed regardless of which remove button is clicked. This is some core functionality that I upset and didn't have time to fix.
 - Forecast data is not loaded. Instead, placeholders using the current weather data are displayed to show what it will look like.
-- Although the current loaction can be obtained, I didn't have time to fully implement adding a location based on this data. This will cause an error which can be fixed by refreshing the page.
+- Although the current location can be obtained, I didn't have time to fully implement adding a location based on this data. This will cause an error which can be fixed by refreshing the page.
 - Location local time does not account for daylight saving in the hours, but does in the days(?!).
+- The units and values are updated in the state but this change does not propagate to the page. Any new locations added will be in the unit saved in the state.
 
 ## Available Scripts
 
