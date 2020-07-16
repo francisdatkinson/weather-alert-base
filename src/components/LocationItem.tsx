@@ -1,20 +1,21 @@
 import * as React from 'react';
 
 import Location from '../interfaces/Location';
-import { Transform } from 'stream';
-import { resolveMx } from 'dns';
-import CountUp from 'react-countup';
+import LocationTitle from './LocationTitle';
+import LocalTime from './LocalTime';
+import WindDisplay from '../containers/WindDisplay';
+import WeatherDisplay from '../containers/WeatherDisplay';
 
 interface LocationItemProps {
   item: Location;
   index: number;
+  removeable: boolean;
   removeLocation: (index: number) => void;
 }
 
 interface LocationItemState {
   location: Location;
   days: string[];
-  windExpanded: boolean;
   weatherExpanded: boolean;
   // fiveDay: Location[];
 }
@@ -24,7 +25,6 @@ class LocationItem extends React.Component<LocationItemProps, LocationItemState,
     super(props);
 
     this.state = {
-      windExpanded: false,
       weatherExpanded: false,
       location: {
         "coord": {
@@ -74,7 +74,6 @@ class LocationItem extends React.Component<LocationItemProps, LocationItemState,
     };
 
     this.expandWeather = this.expandWeather.bind(this);
-    this.expandWind = this.expandWind.bind(this);
 
     this.handleRemoval = this.handleRemoval.bind(this);
   }
@@ -88,7 +87,6 @@ class LocationItem extends React.Component<LocationItemProps, LocationItemState,
   componentDidMount() {
     let query: string = this.props.item.name;
     let currentUrl: string = `http://api.openweathermap.org/data/2.5/weather?q=${query}&units=metric&APPID=f52f54c7903f2276bf1ab68f6b8af2b2`;
-    let forecastUrl: string = `http://api.openweathermap.org/data/2.5/forecast?q=${query}&units=metric&APPID=f52f54c7903f2276bf1ab68f6b8af2b2`;
 
     fetch(currentUrl)
       .then(res => res.json())
@@ -119,28 +117,6 @@ class LocationItem extends React.Component<LocationItemProps, LocationItemState,
         console.log('Fetch Error :-S', err);
       });
     }, 900000); // update every 15 minutes
-
-    // url = `http://api.openweathermap.org/data/2.5/forecast?q=Newcastle&units=metric&APPID=f52f54c7903f2276bf1ab68f6b8af2b2`;
-
-    // fetch(url)
-    //   .then(res => res.json())
-    //   .then(
-    //     (result) => {
-    //       this.setState({
-    //         fiveDay: result
-    //       });
-    //       console.log(this.state.location);
-    //     }
-    //   )
-
-    //   .catch(function(err) {
-    //     console.log('Fetch Error :-S', err);
-    //   });
-
-    
-    
-
-    // console.log(this.state.report);
   }
 
   getDayLetter(date: Date, offset: number): string {
@@ -149,10 +125,6 @@ class LocationItem extends React.Component<LocationItemProps, LocationItemState,
         index -= 7;
       }
       return this.state.days[index].substr(0, 1);
-  }
-
-  expandWind() {
-    this.setState({ windExpanded: !this.state.windExpanded });
   }
 
   expandWeather() {
@@ -167,112 +139,29 @@ class LocationItem extends React.Component<LocationItemProps, LocationItemState,
 
   render() {
     const { index } = this.props;
+    const { name, sys, timezone, wind, weather } = this.state.location;
     const date = new Date(new Date().getTime() + (this.state.location.timezone * 1000));
 
     // return location name and error message
     return (
       <div className="location-item">
-        <h3><span>{this.state.location.name}</span><span>{this.state.location.sys.country}</span></h3>
-        <h4><span>Local time </span><span>{this.state.days[date.getUTCDay()]}, {date.toISOString().substr(11, 5)}</span></h4>
-        {/* <h4>Wind</h4> */}
-        <div onClick={this.expandWind} className="wind-data">
-          <div className="current">
-          <div className="wind-direction" style={{ transform: `rotate(${this.state.location.wind.deg}deg)` }}>
-            <p style={{transform: `rotate(${this.state.location.wind.deg * -1}deg)`}}><CountUp duration={0.5} start={0} end={Math.round(this.state.location.wind.speed)} /></p>
-          </div>
-          </div>
-          <div className="future">
-            <div className="day day1">
-              <p>{this.getDayLetter(date, 1)}</p>
-              <div className="wind-direction" style={{ transform: `rotate(${this.state.location.wind.deg}deg)` }}>
-                <p style={{transform: `rotate(${this.state.location.wind.deg * -1}deg)`}}><CountUp duration={0.5} start={0} end={Math.round(this.state.location.wind.speed)} /></p>
-              </div>
-            </div>
-            <div className="day day2">
-              <p>{this.getDayLetter(date, 2)}</p>
-              <div className="wind-direction" style={{ transform: `rotate(${this.state.location.wind.deg}deg)` }}>
-                <p style={{transform: `rotate(${this.state.location.wind.deg * -1}deg)`}}><CountUp duration={0.5} start={0} end={Math.round(this.state.location.wind.speed)} /></p>
-              </div>
-            </div>
-            <div className="day day3">
-              <p>{this.getDayLetter(date, 3)}</p>
-              <div className="wind-direction" style={{ transform: `rotate(${this.state.location.wind.deg}deg)` }}>
-                <p style={{transform: `rotate(${this.state.location.wind.deg * -1}deg)`}}><CountUp duration={0.5} start={0} end={Math.round(this.state.location.wind.speed)} /></p>
-              </div>
-            </div>
-            <div className="day day4">
-              <p>{this.getDayLetter(date, 4)}</p>
-              <div className="wind-direction" style={{ transform: `rotate(${this.state.location.wind.deg}deg)` }}>
-                <p style={{transform: `rotate(${this.state.location.wind.deg * -1}deg)`}}><CountUp duration={0.5} start={0} end={Math.round(this.state.location.wind.speed)} /></p>
-              </div>
-            </div>
-          </div>
+        <div className={this.props.removeable ? "wind-display jiggle" : 'wind-display'}>
+          <LocationTitle name={name} country={sys.country} />
+          <LocalTime time={new Date()} timezone={timezone} />
+          <WindDisplay deg={wind.deg} speed={wind.speed} timezone={timezone} />
         </div>
-
-        {/* expanded wind data */}
-        {this.state.windExpanded ? <div className="wind-data expanded-wind">
-          <div className="current">
-            <p>{this.state.location.wind.speed}mph<br />{this.getBearing(this.state.location.wind.deg)}</p>
-          </div>
-          <div className="future">
-            <div className="day day1">
-              <p>{this.getDayLetter(date, 1)}</p>
-              <div className="wind-direction" style={{ transform: `rotate(${this.state.location.wind.deg}deg)` }}>
-                <p style={{transform: `rotate(${this.state.location.wind.deg * -1}deg)`}}><CountUp duration={0.5} start={0} end={Math.round(this.state.location.wind.speed)} /></p>
-              </div>
-            </div>
-            <div className="day day2">
-              <p>{this.getDayLetter(date, 2)}</p>
-              <div className="wind-direction" style={{ transform: `rotate(${this.state.location.wind.deg}deg)` }}>
-                <p style={{transform: `rotate(${this.state.location.wind.deg * -1}deg)`}}><CountUp duration={0.5} start={0} end={Math.round(this.state.location.wind.speed)} /></p>
-              </div>
-            </div>
-            <div className="day day3">
-              <p>{this.getDayLetter(date, 3)}</p>
-              <div className="wind-direction" style={{ transform: `rotate(${this.state.location.wind.deg}deg)` }}>
-                <p style={{transform: `rotate(${this.state.location.wind.deg * -1}deg)`}}><CountUp duration={0.5} start={0} end={Math.round(this.state.location.wind.speed)} /></p>
-              </div>
-            </div>
-            <div className="day day4">
-              <p>{this.getDayLetter(date, 4)}</p>
-              <div className="wind-direction" style={{ transform: `rotate(${this.state.location.wind.deg}deg)` }}>
-                <p style={{transform: `rotate(${this.state.location.wind.deg * -1}deg)`}}><CountUp duration={0.5} start={0} end={Math.round(this.state.location.wind.speed)} /></p>
-              </div>
-            </div>
-          </div>
-        </div> : null}
-        
-        <hr />
-        {/* <h4>Weather</h4> */}
-        <div className="weather-data" onClick={this.expandWeather}>
-          <div className="current">
-            <img src={`http://openweathermap.org/img/wn/${this.state.location.weather[0].icon}.png`} alt={this.state.location.weather[0].description}/>
-          </div>
-          <div className="future">
-            <div className="day day1">
-              <img src={`http://openweathermap.org/img/wn/${this.state.location.weather[0].icon}.png`} alt={this.state.location.weather[0].description}/>
-            </div>
-            <div className="day day2">
-              <img src={`http://openweathermap.org/img/wn/${this.state.location.weather[0].icon}.png`} alt={this.state.location.weather[0].description}/>
-            </div>
-            <div className="day day3">
-              <img src={`http://openweathermap.org/img/wn/${this.state.location.weather[0].icon}.png`} alt={this.state.location.weather[0].description}/>
-            </div>
-            <div className="day day4">
-              <img src={`http://openweathermap.org/img/wn/${this.state.location.weather[0].icon}.png`} alt={this.state.location.weather[0].description}/>
-            </div>
-          </div>
+        {/* <hr /> */}
+        <div className={this.props.removeable ? "jiggleReverse" : ''}>
+          <WeatherDisplay description={weather[0].description} icon={weather[0].icon} />
         </div>
-        {this.state.weatherExpanded ? <div className="expanded-weather"></div> : null}
-        <div
-          className="button remove"
-          color="secondary"
-          onClick={() => {
-            this.handleRemoval(index);
-          }}
-        >
-          Remove
-        </div>
+        {this.props.removeable ?
+          <div
+            className="button remove"
+            onClick={() => {
+              this.handleRemoval(index);
+            }}
+          >
+          </div> : null}
       </div>
     );
   }

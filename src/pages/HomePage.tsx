@@ -17,6 +17,7 @@ interface HomePageProps {
 interface HomePageState {
   date: Date;
   updateDate: Date;
+  locationsRemoveable: boolean;
 }
 
 class HomePage extends React.Component<HomePageProps, HomePageState, {}> {
@@ -25,11 +26,18 @@ class HomePage extends React.Component<HomePageProps, HomePageState, {}> {
 
     this.state = {
       date: new Date(),
-      updateDate: new Date()
+      updateDate: new Date(),
+      locationsRemoveable: false
     }
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.removeLocation = this.removeLocation.bind(this);
+  }
+
+  makeLocationsRemoveable() {
+    this.setState({ locationsRemoveable: !this.state.locationsRemoveable });
+    console.log(this.state.locationsRemoveable);
+    this.forceUpdate();
   }
 
   handleSubmit(data: any) {
@@ -58,9 +66,14 @@ class HomePage extends React.Component<HomePageProps, HomePageState, {}> {
     if (!this.state.updateDate) {
       this.setState({ updateDate: new Date() });
     }
+
     setInterval(() => {
       this.setState({ date: new Date() });
     }, 1000);
+    
+    setInterval(() => {
+      this.setState({ updateDate: new Date() });
+    }, 900000);
     
   }
 
@@ -79,8 +92,6 @@ class HomePage extends React.Component<HomePageProps, HomePageState, {}> {
       return <LocationForm onSubmit={this.handleSubmit} />;
     }
 
-    
-    let updateDate: Date = new Date("July 14, 2020, 12:15");
     let now: Date = new Date();
     setInterval(function() {
       now = new Date();
@@ -103,29 +114,30 @@ class HomePage extends React.Component<HomePageProps, HomePageState, {}> {
     let secs: number = Math.floor((difference - ((days * ONE_DAY) + (hours * ONE_HOUR) + (mins * ONE_MIN))) / ONE_SEC);
 
     return (
-      <>
-      <header>
-        <h1>The Wind Forecast</h1>
-        <LocationForm onSubmit={this.handleSubmit} />
-      </header>
-      <div className="meta-info">
-        <p className="date"><span>{date}, {time}</span></p>
-        <p className="last-updated">Last updated: <span>{days > 0 ? days + 'd ' : ''}{hours > 0 ? hours + 'h ' : ''}{mins > 0 ? mins + 'm ' : ''}{secs > 0 ? secs + 's ' : ''}</span></p>
+      <div className="wrapper">
+        <header>
+          <h1>The Wind Forecast</h1>
+          <LocationForm onSubmit={this.handleSubmit} />
+        </header>
+        <div className="meta-info">
+          <p className="date"><span>{date}, {time}</span></p>
+          <p className="last-updated">Last updated: <span>{days > 0 ? days + 'd ' : ''}{hours > 0 ? hours + 'h ' : ''}{mins > 0 ? mins + 'm ' : ''}{secs > 0 ? secs + 's ' : ''}</span></p>
+        </div>
+        <div className="location-list">
+          {locations.locations.map((item, i) => (
+            <React.Fragment key={i}>
+              <LocationItem
+                item={item}
+                index={i}
+                removeable={this.state.locationsRemoveable}
+                removeLocation={this.removeLocation}
+              />
+            </React.Fragment>
+          ))}
+          {locations.locations.length < 1 ? <p>Locations you add will appear in this list</p> : null}
+        </div>
+          <div className="button" onClick={() => this.makeLocationsRemoveable()}>{this.state.locationsRemoveable ? 'Stop removing locations' : 'Remove locations'}</div>
       </div>
-      <h2>Your Locations</h2>
-      <div className="location-list">
-        {locations.locations.map((item, i) => (
-          <React.Fragment key={i}>
-            <LocationItem
-              item={item}
-              index={i}
-              removeLocation={this.removeLocation}
-            />
-          </React.Fragment>
-        ))}
-        {locations.locations.length < 1 ? <p>Locations you add will appear in this list</p> : null}
-      </div>
-      </>
     );
   }
 }
