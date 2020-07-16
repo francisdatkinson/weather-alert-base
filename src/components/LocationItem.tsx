@@ -5,18 +5,23 @@ import LocationTitle from './LocationTitle';
 import LocalTime from './LocalTime';
 import WindDisplay from '../containers/WindDisplay';
 import WeatherDisplay from '../containers/WeatherDisplay';
+import main from '../main';
+import f from '../helpers/helpers';
 
 interface LocationItemProps {
   item: Location;
   index: number;
   removeable: boolean;
   removeLocation: (index: number) => void;
+  tempUnit: string
+  speedUnit: string
 }
 
 interface LocationItemState {
   location: Location;
   days: string[];
   weatherExpanded: boolean;
+  windExpanded: boolean;
   // fiveDay: Location[];
 }
 
@@ -25,6 +30,7 @@ class LocationItem extends React.Component<LocationItemProps, LocationItemState,
     super(props);
 
     this.state = {
+      windExpanded: false,
       weatherExpanded: false,
       location: {
         "coord": {
@@ -95,6 +101,7 @@ class LocationItem extends React.Component<LocationItemProps, LocationItemState,
           this.setState({
             location: result
           });
+          this.setTemp();
         }
       )
 
@@ -110,6 +117,7 @@ class LocationItem extends React.Component<LocationItemProps, LocationItemState,
           this.setState({
             location: result
           });
+          this.setTemp();
         }
       )
 
@@ -127,32 +135,57 @@ class LocationItem extends React.Component<LocationItemProps, LocationItemState,
       return this.state.days[index].substr(0, 1);
   }
 
-  expandWeather() {
-    this.setState({ weatherExpanded: !this.state.weatherExpanded });
-  }
-
   getBearing(deg: number): string {
     let bearings: string[] = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
 
     return `${deg + String.fromCharCode(176) + bearings[Math.round(deg / 45)]}`;
   }
 
+  expandWind() {
+    this.setState({ windExpanded: !this.state.windExpanded });
+  }
+
+  expandWeather() {
+    this.setState({ weatherExpanded: !this.state.weatherExpanded });
+  }
+
+  setTemp() {
+    let temp = this.state.location;
+
+    temp.main.temp = f.cToX(temp.main.temp, this.props.tempUnit);
+    temp.main.temp_max = f.cToX(temp.main.temp_max, this.props.tempUnit);
+    temp.main.temp_min = f.cToX(temp.main.temp_min, this.props.tempUnit);
+
+    console.log(temp);
+
+    this.setState({ location: temp });
+  }
+
+  setSpeed() {
+    let temp = this.state.location;
+
+    temp.wind.speed = f.mphToX(temp.wind.speed, this.props.speedUnit);
+
+    console.log(temp);
+
+    this.setState({ location: temp });
+  }
+
   render() {
-    const { index } = this.props;
-    const { name, sys, timezone, wind, weather } = this.state.location;
-    const date = new Date(new Date().getTime() + (this.state.location.timezone * 1000));
+    const { index, speedUnit, tempUnit } = this.props;
+    const { name, sys, timezone, wind, weather, main } = this.state.location;
 
     // return location name and error message
     return (
       <div className="location-item">
-        <div className={this.props.removeable ? "wind-display jiggle" : 'wind-display'}>
+        <div className={this.props.removeable ? 'wind-display jiggle' : 'wind-display'} onClick={() => this.expandWind()}>
           <LocationTitle name={name} country={sys.country} />
           <LocalTime time={new Date()} timezone={timezone} />
-          <WindDisplay deg={wind.deg} speed={wind.speed} timezone={timezone} />
+          <WindDisplay unit={speedUnit} deg={wind.deg} speed={wind.speed} timezone={timezone} expanded={this.state.windExpanded}/>
         </div>
         {/* <hr /> */}
-        <div className={this.props.removeable ? "jiggleReverse" : ''}>
-          <WeatherDisplay description={weather[0].description} icon={weather[0].icon} />
+        <div className={this.props.removeable ? "jiggleReverse" : ''} onClick={() => this.expandWeather()}>
+          <WeatherDisplay unit={tempUnit} temperature={main.temp} description={weather[0].description} icon={weather[0].icon} expanded={this.state.weatherExpanded} />
         </div>
         {this.props.removeable ?
           <div
