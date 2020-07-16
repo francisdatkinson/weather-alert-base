@@ -6,20 +6,38 @@ import * as locationsActions from '../actions/locationsActions';
 import AppState from '../interfaces/AppState';
 import LocationForm from '../forms/LocationForm';
 import LocationItem from '../components/LocationItem';
-import LocationItemSentinel from '../components/LocationItem';
 import LocationsState from '../interfaces/LocationsState';
 
 interface HomePageProps {
   locations: LocationsState;
   actions: any;
+  updateDate: Date;
 }
 
-class HomePage extends React.Component<HomePageProps, {}> {
+interface HomePageState {
+  date: Date;
+  updateDate: Date;
+  locationsRemoveable: boolean;
+}
+
+class HomePage extends React.Component<HomePageProps, HomePageState, {}> {
   constructor(props: any) {
     super(props);
 
+    this.state = {
+      date: new Date(),
+      updateDate: new Date(),
+      locationsRemoveable: false
+    }
+
     this.handleSubmit = this.handleSubmit.bind(this);
     this.removeLocation = this.removeLocation.bind(this);
+  }
+
+  makeLocationsRemoveable() {
+    this.setState({ locationsRemoveable: !this.state.locationsRemoveable });
+    console.log(this.state.locationsRemoveable);
+    this.forceUpdate();
   }
 
   handleSubmit(data: any) {
@@ -29,6 +47,7 @@ class HomePage extends React.Component<HomePageProps, {}> {
     // If the location already exists don't add it again
     if (locations.locations !== undefined) {
       const exists = locations.locations.some((el) => {
+ 
         return el.name === locationToAdd.name;
       });
 
@@ -41,6 +60,21 @@ class HomePage extends React.Component<HomePageProps, {}> {
 
     actions.updateLocations(locationToAdd);
     actions.getLocations();
+  }
+
+  componentDidMount() {
+    if (!this.state.updateDate) {
+      this.setState({ updateDate: new Date() });
+    }
+
+    setInterval(() => {
+      this.setState({ date: new Date() });
+    }, 1000);
+    
+    setInterval(() => {
+      this.setState({ updateDate: new Date() });
+    }, 900000);
+    
   }
 
   removeLocation(index: number) {
@@ -58,46 +92,52 @@ class HomePage extends React.Component<HomePageProps, {}> {
       return <LocationForm onSubmit={this.handleSubmit} />;
     }
 
-    let columns = Math.floor((window.innerWidth - (window.innerWidth * 0.03)) / 540);
+    let now: Date = new Date();
+    setInterval(function() {
+      now = new Date();
+    }, 1000);
+    
 
-    let sentinels = [];
+    let date: string = `${(now.getDate())}/${(now.getMonth() + 1)}/${(now.getFullYear())}`;
+    let time: string = now.toString().substr(16, 8);
 
-    for (let i = 0; i < columns - 1; i++) {
-      sentinels.push('SENTINEL');
-    }
+    let ONE_SEC: number = 1000;
+    let ONE_MIN: number = 60 * 1000;
+    let ONE_HOUR: number = 60 * 60 * 1000;
+    let ONE_DAY: number = 24 * 60 * 60 * 1000;
 
-    console.log(columns, sentinels);
+    let difference: number  = now.getTime() - this.state.updateDate.getTime();
+
+    let days: number = Math.floor(difference / ONE_DAY);
+    let hours: number = Math.floor((difference - (days * ONE_DAY)) / ONE_HOUR);
+    let mins: number = Math.floor((difference - ((days * ONE_DAY) + (hours * ONE_HOUR))) / ONE_MIN);
+    let secs: number = Math.floor((difference - ((days * ONE_DAY) + (hours * ONE_HOUR) + (mins * ONE_MIN))) / ONE_SEC);
 
     return (
-      <>
-      <header>
-        <h1>The Wind Forecast</h1>
-        <LocationForm onSubmit={this.handleSubmit} />
-        <hr />
-      </header>
-      <h2>Your Locations</h2>
-      <div className="location-list">
-        {locations.locations.map((item, i) => (
-          <React.Fragment key={i}>
-            <LocationItem
-              item={item}
-              index={i}
-              removeLocation={this.removeLocation}
-            />
-          </React.Fragment>
-        ))}
-
-        {sentinels.map((item, i) => (
+      <div className="wrapper">
+        <header>
+          <h1>The Wind Forecast</h1>
+          <LocationForm onSubmit={this.handleSubmit} />
+        </header>
+        <div className="meta-info">
+          <p className="date"><span>{date}, {time}</span></p>
+          <p className="last-updated">Last updated: <span>{days > 0 ? days + 'd ' : ''}{hours > 0 ? hours + 'h ' : ''}{mins > 0 ? mins + 'm ' : ''}{secs > 0 ? secs + 's ' : ''}</span></p>
+        </div>
+        <div className="location-list">
+          {locations.locations.map((item, i) => (
             <React.Fragment key={i}>
-            <LocationItemSentinel
-              item={{name: item}}
-              index={i}
-              removeLocation={this.removeLocation}
-            />
-          </React.Fragment>
-        ))}
+              <LocationItem
+                item={item}
+                index={i}
+                removeable={this.state.locationsRemoveable}
+                removeLocation={this.removeLocation}
+              />
+            </React.Fragment>
+          ))}
+          {locations.locations.length < 1 ? <p>Locations you add will appear in this list</p> : null}
+        </div>
+          <div className="button" onClick={() => this.makeLocationsRemoveable()}>{this.state.locationsRemoveable ? 'Stop removing locations' : 'Remove locations'}</div>
       </div>
-      </>
     );
   }
 }

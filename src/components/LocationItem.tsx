@@ -1,17 +1,79 @@
 import * as React from 'react';
 
 import Location from '../interfaces/Location';
-import { Transform } from 'stream';
+import LocationTitle from './LocationTitle';
+import LocalTime from './LocalTime';
+import WindDisplay from '../containers/WindDisplay';
+import WeatherDisplay from '../containers/WeatherDisplay';
 
 interface LocationItemProps {
   item: Location;
   index: number;
+  removeable: boolean;
   removeLocation: (index: number) => void;
 }
 
-class LocationItem extends React.Component<LocationItemProps, {}> {
+interface LocationItemState {
+  location: Location;
+  days: string[];
+  weatherExpanded: boolean;
+  // fiveDay: Location[];
+}
+
+class LocationItem extends React.Component<LocationItemProps, LocationItemState, {}> {
   constructor(props: any) {
     super(props);
+
+    this.state = {
+      weatherExpanded: false,
+      location: {
+        "coord": {
+          "lon": 0,
+          "lat": 0,
+        },
+        "weather": [
+          {
+            "id": 0,
+            "main": "Drizzle",
+            "description": "light intensity drizzle",
+            "icon": "09d"
+          }
+        ],
+        "base": "stations",
+        "main": {
+          "temp":0,
+          "pressure": 0,
+          "humidity": 0,
+          "temp_min": 0,
+          "temp_max": 0
+        },
+        "visibility": 0,
+        "wind": {
+          "deg": 0,
+          "speed": 0
+        },
+        "clouds": {
+          "all": 0
+        },
+        "dt": 0,
+        "timezone": 0,
+        "sys": {
+          "type": 0,
+          "id": 0,
+          "message": 0,
+          "country": "N/A",
+          "sunrise": 0,
+          "sunset": 0
+        },
+        "id": 2643743,
+        "name": "London",
+        "cod": 200
+      },
+
+      days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    };
+
+    this.expandWeather = this.expandWeather.bind(this);
 
     this.handleRemoval = this.handleRemoval.bind(this);
   }
@@ -22,74 +84,84 @@ class LocationItem extends React.Component<LocationItemProps, {}> {
     removeLocation(index);
   }
 
-  render() {
-    const { item, index } = this.props;
+  componentDidMount() {
+    let query: string = this.props.item.name;
+    let currentUrl: string = `http://api.openweathermap.org/data/2.5/weather?q=${query}&units=metric&APPID=f52f54c7903f2276bf1ab68f6b8af2b2`;
 
-    let sentinel = {
-      "coord": {
-        "lon":-0.13,
-        "lat":51.51
-      },
-      "weather": [
-        {
-          "id": 300,
-          "main": "Drizzle",
-          "description": "light intensity drizzle",
-          "icon": "09d"
+    fetch(currentUrl)
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            location: result
+          });
         }
-      ],
-      "base": "stations",
-      "main": {
-        "temp":280.32,
-        "pressure": 1012,
-        "humidity": 81,
-        "temp_min": 279.15,
-        "temp_max":281.15
-      },
-      "visibility": 10000,
-      "wind": {
-        "deg": Math.ceil(Math.random() * 360),
-        "speed": Math.ceil(Math.random() * 100)
-      },
-      "clouds": {
-        "all": 90
-      },
-      "dt": 1485789600,
-      "sys": {
-        "type": 1,
-        "id":5091,
-        "message": 0.0103,
-        "country": "GB",
-        "sunrise": 1485762037,
-        "sunset": 1485794875
-      },
-      "id": 2643743,
-      "name": "London",
-      "cod": 200
-    }
+      )
+
+      .catch(function(err) {
+        console.log('Fetch Error :-S', err);
+      });
+
+    setInterval(() => {
+      fetch(currentUrl)
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            location: result
+          });
+        }
+      )
+
+      .catch(function(err) {
+        console.log('Fetch Error :-S', err);
+      });
+    }, 900000); // update every 15 minutes
+  }
+
+  getDayLetter(date: Date, offset: number): string {
+      let index: number = date.getDay() + offset;
+      if (index > 6) {
+        index -= 7;
+      }
+      return this.state.days[index].substr(0, 1);
+  }
+
+  expandWeather() {
+    this.setState({ weatherExpanded: !this.state.weatherExpanded });
+  }
+
+  getBearing(deg: number): string {
+    let bearings: string[] = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+
+    return `${deg + String.fromCharCode(176) + bearings[Math.round(deg / 45)]}`;
+  }
+
+  render() {
+    const { index } = this.props;
+    const { name, sys, timezone, wind, weather } = this.state.location;
+    const date = new Date(new Date().getTime() + (this.state.location.timezone * 1000));
 
     // return location name and error message
     return (
       <div className="location-item">
-        <h3>{item.name}</h3>
-        <h4>Monday 17:00</h4>
-        <h4>Wind</h4>
-        <div className="wind-data">
-        <div className="wind-direction" style={{ transform: `rotate(${sentinel.wind.deg}deg)` }}><p style={{transform: `rotate(${sentinel.wind.deg * -1}deg)`}}>{sentinel.wind.speed}</p></div>
+        <div className={this.props.removeable ? "wind-display jiggle" : 'wind-display'}>
+          <LocationTitle name={name} country={sys.country} />
+          <LocalTime time={new Date()} timezone={timezone} />
+          <WindDisplay deg={wind.deg} speed={wind.speed} timezone={timezone} />
         </div>
-        <hr />
-        <div className="fiveDay">
-
+        {/* <hr /> */}
+        <div className={this.props.removeable ? "jiggleReverse" : ''}>
+          <WeatherDisplay description={weather[0].description} icon={weather[0].icon} />
         </div>
-        <div
-          className="button remove"
-          color="secondary"
-          onClick={() => {
-            this.handleRemoval(index);
-          }}
-        >
-          Remove
-        </div>
+        {this.props.removeable ?
+          <div
+            className="button remove"
+            onClick={() => {
+              this.handleRemoval(index);
+            }}
+          >
+          </div> : null}
       </div>
     );
   }
