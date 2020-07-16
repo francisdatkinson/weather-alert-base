@@ -1,14 +1,21 @@
-## weather-alert-base
+## Features
 
-This project has been set up to serve as a starting point for Home Group Full Stack Developer candidates technical exercises.
+- Search for a location by city/country and it will be addedd to favourites
+- Stylish presentation of key weather data including wind speed and direction, temperature and weather conditions.
+  - animated wind vein, clouds and counting number.
+- Detailed information on weather upon expansion of different sections, e.g. more precise readings for windspeed, bearing and temperature; written description of weather conditions and placeholders for min/max values of forecasted data. (forecasted data could not be obtained and presented).
+- The ability to remove locations from the list, with a safeguard and indicator that remove-mode is active. (iOS style jiggle).
+- Ability to set preferred units for temperature and windspeed. (This updates in the state but not in the display).
+- View the current time and the time of the last weather data update.
+- View the local time of each favourite location
 
-It has been set up using create-react-app and contains a basic structure for a react app using redux for state management.
+## Known bugs
 
-Candidates are free to build upon this project as they see fit or to not use it at all.
-
-Two environment variables have been added to the .env, you will need to register an account with [OpenWeather](https://openweathermap.org/guide) to obtain a key.
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+- Adding an invalid location (anything that isn't a city/country/area name) will crash the site. Thisw can only be recovered by clearing browser cookies then refreshing the site. This is due to an incomplete attempt to validate names on input, rejecting invalid values.
+- When removing locations, the final item from the list will be removed regardless of which remove button is clicked. This is some core functionality that I upset and didn't have time to fix.
+- Forecast data is not loaded. Instead, placeholders using the current weather data are displayed to show what it will look like.
+- Although the current loaction can be obtained, I didn't have time to fully implement adding a location based on this data. This will cause an error which can be fixed by refreshing the page.
+- Location local time does not account for daylight saving in the hours, but does in the days(?!).
 
 ## Available Scripts
 
