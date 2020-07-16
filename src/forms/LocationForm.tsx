@@ -8,58 +8,95 @@ interface LocationFormProps {
 class LocationForm extends React.Component<LocationFormProps> {
   state = {
     name: '',
-    cities: []
   };
 
   constructor(props: any) {
     super(props);
-    this.state = { name: '', cities: [] };
+    this.state = { name: '' };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleChange(event: any) {
-    this.setState({ name: event.target.value });
+  useCurrentLocation() {
+    let url = '';
+    let valid = false;
+    navigator.geolocation.getCurrentPosition(function(position) {
+      console.log("Latitude is :", position.coords.latitude);
+      console.log("Longitude is :", position.coords.longitude);
+      url = `http://api.openweathermap.org/data/2.5/onecall?lat=${position.coords.latitude}&lon=${position.coords.longitude}&units=metric&APPID=f52f54c7903f2276bf1ab68f6b8af2b2`;
+    
 
+    fetch(url)
+      .then(
+        function(response) {
+          if (response.status != 200) {
+            console.log('Looks like there was a problem. Status Code: ' + response.status);
+            alert('Please enter a valid city');
+            return;
+          } else {
+            valid = true;
+          }
+
+          if (valid) {
+            response.json().then(function(data) {
+              console.log(valid);
+              console.log(data);
+              const { onSubmit } = data;
+              onSubmit(data);
+            });
+          }
+        }
+      )
+      .catch(function(err) {
+        console.log('Fetch Error :-S', err);
+        // valid = false;
+      });
+    });
     
   }
 
+  handleChange(event: any) {
+    this.setState({name: event.target.value});
+    console.log(this.state.name);
+  }
+
   handleSubmit(event: any) {
-    const { onSubmit } = this.props;
-    
-    event.preventDefault();
 
-    onSubmit(this.state);
+    console.log(this.state);
 
-    this.setState({
-      name: '',
-    });
-
-    
-
-    let city = event;
-    let url= `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&APPID=f52f54c7903f2276bf1ab68f6b8af2b2`;
+    let valid = false;
+    let url= `http://api.openweathermap.org/data/2.5/weather?q=${this.state.name}&units=metric&APPID=f52f54c7903f2276bf1ab68f6b8af2b2`;
 
     fetch(url)
       .then(
         function(response) {
           if (response.status !== 200) {
-            console.log('Looks like there was a problem. Status Code: ' +
-              response.status);
+            console.log('Looks like there was a problem. Status Code: ' + response.status);
+            alert('Please enter a valid city');
             return;
+          } else {
+            valid = true;
           }
 
-          // Examine the text in the response
-          response.json().then(function(data) {
-            // setState({data: data});
-            console.log(data.name);
-          });
+          if (valid) {
+            response.json().then(function(data) {
+              console.log(valid);
+              console.log(data);
+            });
+          }
         }
       )
       .catch(function(err) {
         console.log('Fetch Error :-S', err);
+        // valid = false;
       });
+
+      console.log(valid);
+        const { onSubmit } = this.props;
+        event.preventDefault();
+        onSubmit(this.state);
+        this.setState({name:''});   
   }
 
   render() {
@@ -81,6 +118,7 @@ class LocationForm extends React.Component<LocationFormProps> {
           value={this.state.name}
         />
         <p>e.g. Newcastle upon Tyne, UK</p>
+        {"geolocation" in navigator ? <div className="button" onClick={this.useCurrentLocation}>Use my current location</div> : null}
       </form>
     );
   }

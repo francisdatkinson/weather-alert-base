@@ -5,6 +5,7 @@ html {
   height: 100%;
   width: 100%;
   user-select: none;
+  overflow: hidden scroll;
 }
 
 body {
@@ -56,6 +57,8 @@ p, h1, h2, h3, h4, h5, h6 {
   width: 100%;
   background-color: red;
   height: 3rem;
+  display: flex;
+  flex-flow: row nowrap;
 }
 
 /* hr {
@@ -91,10 +94,26 @@ h2 {
 h3 {
   width: 100%;
   margin: 0 0 1rem 0;
+  display: flex;
+  font-weight: 300;
+  font-size: 1.5em;
+  justify-content: space-between;
+}
+h3 span:last-child {
+  font-weight: 300;
+  color: #aaaaaa;
 }
 
 h4 {
   font-weight: 300;
+  display: flex;
+  flex-flow: column;
+}
+
+h4 span:first-child {
+  font-size: 0.8em;
+  color: #999999;
+  margin-bottom: 0.1rem;
 }
 
 
@@ -139,6 +158,18 @@ header {
 .search-bar input:focus {
   background: rgba(255,255,255,0.8);
   color: #000;
+}
+
+.search-bar .button {
+  padding: 0.6rem 1.2rem;
+  color: #333333;
+  margin-top: 1.5rem;
+  border-radius: 5rem;
+  background: rgba(255,255,255,0.8);
+}
+
+.search-bar .button:hover {
+  background: rgba(255,255,255,0.5);
 }
 
 .search-bar input::placeholder {
@@ -200,6 +231,7 @@ header {
   overflow: hidden;
   transition: all 0.2s ease;
   border-radius: 10px;
+  animation: fadeIn 1s ease;
 }
 
 .wind-data {
@@ -225,8 +257,23 @@ header {
   margin: 0;
 }
 
+.location-item img {
+  background: rgba(127,127,127,1);
+  border-radius: 2rem;
+  width: 3rem;
+}
+
 .sentinel {
   opacity: 0;
   cursor: default;
   pointer-events: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0
+  } 
+  to {
+    opacity: 1
+  }
 }

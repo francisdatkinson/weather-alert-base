@@ -11,7 +11,8 @@ interface LocationItemProps {
 }
 
 interface LocationItemState {
-  weather: object;
+  location: Location;
+  // fiveDay: Location[];
 }
 
 class LocationItem extends React.Component<LocationItemProps, LocationItemState, {}> {
@@ -19,14 +20,14 @@ class LocationItem extends React.Component<LocationItemProps, LocationItemState,
     super(props);
 
     this.state = {
-      weather: {
+      location: {
         "coord": {
-          "lon":-0.13,
-          "lat":51.51
+          "lon": 0,
+          "lat": 0,
         },
         "weather": [
           {
-            "id": 300,
+            "id": 0,
             "main": "Drizzle",
             "description": "light intensity drizzle",
             "icon": "09d"
@@ -34,28 +35,29 @@ class LocationItem extends React.Component<LocationItemProps, LocationItemState,
         ],
         "base": "stations",
         "main": {
-          "temp":280.32,
-          "pressure": 1012,
-          "humidity": 81,
-          "temp_min": 279.15,
-          "temp_max":281.15
+          "temp":0,
+          "pressure": 0,
+          "humidity": 0,
+          "temp_min": 0,
+          "temp_max": 0
         },
-        "visibility": 10000,
+        "visibility": 0,
         "wind": {
           "deg": 0,
           "speed": 0
         },
         "clouds": {
-          "all": 90
+          "all": 0
         },
-        "dt": 1485789600,
+        "dt": 0,
+        "timezone": 0,
         "sys": {
-          "type": 1,
-          "id":5091,
-          "message": 0.0103,
-          "country": "GB",
-          "sunrise": 1485762037,
-          "sunset": 1485794875
+          "type": 0,
+          "id": 0,
+          "message": 0,
+          "country": "N/A",
+          "sunrise": 0,
+          "sunset": 0
         },
         "id": 2643743,
         "name": "London",
@@ -76,33 +78,14 @@ class LocationItem extends React.Component<LocationItemProps, LocationItemState,
     let query = this.props.item.name;
     let url = `http://api.openweathermap.org/data/2.5/weather?q=${query}&units=metric&APPID=f52f54c7903f2276bf1ab68f6b8af2b2`;
 
-    // fetch(url)
-    //   .then(
-    //     function(response) {
-    //       if (response.status !== 200) {
-    //         console.log('Looks like there was a problem. Status Code: ' +
-    //           response.status);
-    //         return;
-    //       }
-
-    //       // Examine the text in the response
-    //       response.json().then(function(data) {
-    //         console.log(data.name);
-    //       });
-    //     }
-    //   )
-    //   .catch(function(err) {
-    //     console.log('Fetch Error :-S', err);
-    //   });
-
     fetch(url)
       .then(res => res.json())
       .then(
         (result) => {
           this.setState({
-            weather: result
+            location: result
           });
-          console.log(this.state.weather);
+          console.log(this.state.location);
         }
       )
 
@@ -116,16 +99,33 @@ class LocationItem extends React.Component<LocationItemProps, LocationItemState,
       .then(
         (result) => {
           this.setState({
-            weather: result
+            location: result
           });
-          console.log(this.state.weather);
+          console.log(this.state.location);
         }
       )
 
       .catch(function(err) {
         console.log('Fetch Error :-S', err);
       });
-    }, 900000);
+    }, 900000); // update every 15 minutes
+
+    // url = `http://api.openweathermap.org/data/2.5/forecast?q=Newcastle&units=metric&APPID=f52f54c7903f2276bf1ab68f6b8af2b2`;
+
+    // fetch(url)
+    //   .then(res => res.json())
+    //   .then(
+    //     (result) => {
+    //       this.setState({
+    //         fiveDay: result
+    //       });
+    //       console.log(this.state.location);
+    //     }
+    //   )
+
+    //   .catch(function(err) {
+    //     console.log('Fetch Error :-S', err);
+    //   });
 
     
     
@@ -134,64 +134,34 @@ class LocationItem extends React.Component<LocationItemProps, LocationItemState,
   }
 
   render() {
-    const { item, index } = this.props;
+    const { index } = this.props;
+    const date = new Date(new Date().getTime() + (this.state.location.timezone * 1000));
 
-    let sentinel = {
-      "coord": {
-        "lon":-0.13,
-        "lat":51.51
-      },
-      "weather": [
-        {
-          "id": 300,
-          "main": "Drizzle",
-          "description": "light intensity drizzle",
-          "icon": "09d"
-        }
-      ],
-      "base": "stations",
-      "main": {
-        "temp":280.32,
-        "pressure": 1012,
-        "humidity": 81,
-        "temp_min": 279.15,
-        "temp_max":281.15
-      },
-      "visibility": 10000,
-      "wind": {
-        "deg": Math.ceil(Math.random() * 360),
-        "speed": Math.ceil(Math.random() * 100)
-      },
-      "clouds": {
-        "all": 90
-      },
-      "dt": 1485789600,
-      "sys": {
-        "type": 1,
-        "id":5091,
-        "message": 0.0103,
-        "country": "GB",
-        "sunrise": 1485762037,
-        "sunset": 1485794875
-      },
-      "id": 2643743,
-      "name": "London",
-      "cod": 200
-    }
+    console.log(new Date(1594883607));
+
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
     // return location name and error message
     return (
       <div className="location-item">
-        <h3>{item.name}</h3>
-        <h4>Monday 17:00</h4>
+        <h3><span>{this.state.location.name}</span><span>{this.state.location.sys.country}</span></h3>
+        <h4><span>Local time </span><span>{days[date.getUTCDay()]}, {date.toISOString().substr(11, 5)}</span></h4>
         <h4>Wind</h4>
         <div className="wind-data">
-        <div className="wind-direction" style={{ transform: `rotate(${this.state.weather.wind.deg}deg)` }}><p style={{transform: `rotate(${this.state.weather.wind.deg * -1}deg)`}}>{Math.round(this.state.weather.wind.speed)}</p></div>
+          <div className="wind-direction" style={{ transform: `rotate(${this.state.location.wind.deg}deg)` }}>
+            <p style={{transform: `rotate(${this.state.location.wind.deg * -1}deg)`}}>{Math.round(this.state.location.wind.speed)}</p>
+          </div>
         </div>
         <hr />
-        <div className="fiveDay">
-
-        </div>
+        <h4>Weather</h4>
+        <img src={`http://openweathermap.org/img/wn/${this.state.location.weather[0].icon}.png`} alt={this.state.location.weather[0].description}/>
+        {/* <div className="fiveDay">
+          <div className="day day1"><img src={`http://openweathermap.org/img/wn/${this.state.fiveDay[0].weather[0].icon}.png`} alt={this.state.fiveDay[0].weather[0].description}/></div>
+          <div className="day day2"><img src={`http://openweathermap.org/img/wn/${this.state.fiveDay[1].weather[0].icon}.png`} alt={this.state.fiveDay[1].weather[0].description}/></div>
+          <div className="day day3"><img src={`http://openweathermap.org/img/wn/${this.state.fiveDay[2].weather[0].icon}.png`} alt={this.state.fiveDay[2].weather[0].description}/></div>
+          <div className="day day4"><img src={`http://openweathermap.org/img/wn/${this.state.fiveDay[3].weather[0].icon}.png`} alt={this.state.fiveDay[3].weather[0].description}/></div>
+          <div className="day day5"><img src={`http://openweathermap.org/img/wn/${this.state.fiveDay[4].weather[0].icon}.png`} alt={this.state.fiveDay[4].weather[0].description}/></div>
+        </div> */}
         <div
           className="button remove"
           color="secondary"

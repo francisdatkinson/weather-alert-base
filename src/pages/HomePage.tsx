@@ -102,7 +102,6 @@ class HomePage extends React.Component<HomePageProps, {}> {
       <header>
         <h1>The Wind Forecast</h1>
         <LocationForm onSubmit={this.handleSubmit} />
-        <hr />
       </header>
       <div className="meta-info">
         <p className="date"><span>{date}, {time}</span></p>
@@ -120,15 +119,14 @@ class HomePage extends React.Component<HomePageProps, {}> {
           </React.Fragment>
         ))}
 
-        {sentinels.map((item, i) => (
+        {/* {sentinels.map((item, i) => (
             <React.Fragment key={i}>
             <LocationItemSentinel
-              item={{name: item}}
               index={i}
               removeLocation={this.removeLocation}
             />
           </React.Fragment>
-        ))}
+        ))} */}
       </div>
       </>
     );

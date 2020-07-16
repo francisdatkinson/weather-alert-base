@@ -1,5 +1,5 @@
 {
-  "name": "The Wind Forecast",
+  "name": "weather-alert",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
