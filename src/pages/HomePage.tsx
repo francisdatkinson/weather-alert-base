@@ -7,6 +7,7 @@ import AppState from '../interfaces/AppState';
 import LocationForm from '../forms/LocationForm';
 import LocationItem from '../components/LocationItem';
 import LocationsState from '../interfaces/LocationsState';
+import UnitSwitch from '../components/UnitSwitch';
 
 interface HomePageProps {
   locations: LocationsState;
@@ -18,6 +19,8 @@ interface HomePageState {
   date: Date;
   updateDate: Date;
   locationsRemoveable: boolean;
+  tempUnit: string
+  speedUnit: string
 }
 
 class HomePage extends React.Component<HomePageProps, HomePageState, {}> {
@@ -27,7 +30,9 @@ class HomePage extends React.Component<HomePageProps, HomePageState, {}> {
     this.state = {
       date: new Date(),
       updateDate: new Date(),
-      locationsRemoveable: false
+      locationsRemoveable: false,
+      tempUnit: 'C',
+      speedUnit: 'mph'
     }
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -84,6 +89,14 @@ class HomePage extends React.Component<HomePageProps, HomePageState, {}> {
     actions.getLocations();
   }
 
+  handleTempChange(unit: string) {
+    this.setState({ tempUnit: unit });
+  }
+
+  handleSpeedChange(unit: string) {
+    this.setState({ speedUnit: unit });
+  }
+
   render() {
     const { locations } = this.props;
 
@@ -113,11 +126,35 @@ class HomePage extends React.Component<HomePageProps, HomePageState, {}> {
     let mins: number = Math.floor((difference - ((days * ONE_DAY) + (hours * ONE_HOUR))) / ONE_MIN);
     let secs: number = Math.floor((difference - ((days * ONE_DAY) + (hours * ONE_HOUR) + (mins * ONE_MIN))) / ONE_SEC);
 
+    const tempUnits: string[] = ['C', 'F', 'K'];
+    const speedUnits: string[] = ['mph', 'kph', 'kn'];
+
     return (
       <div className="wrapper">
         <header>
           <h1>The Wind Forecast</h1>
           <LocationForm onSubmit={this.handleSubmit} />
+          {/* <UnitSwitch handleTempChange={() => this.handleTempChange.bind(this)} unit={this.state.unit} units={['C', 'F', 'K']}/> */}
+          <div className="unit-switchers">
+            <div className="unit-switch">
+              <p>Speed unit: 
+              {speedUnits.map((item, i) => (
+                  <React.Fragment key={i}>
+                    <span className={item === this.state.speedUnit ? 'active' : ''} onClick={() => this.handleSpeedChange(speedUnits[i])}>{item}</span>
+                  </React.Fragment>
+                ))}
+              </p>
+            </div>
+            <div className="unit-switch">
+              <p>Temperature unit: 
+              {tempUnits.map((item, i) => (
+                  <React.Fragment key={i}>
+                    <span className={item === this.state.tempUnit ? 'active' : ''} onClick={() => this.handleTempChange(tempUnits[i])}>{item}</span>
+                  </React.Fragment>
+                ))}
+              </p>
+            </div>
+          </div>
         </header>
         <div className="meta-info">
           <p className="date"><span>{date}, {time}</span></p>
@@ -131,6 +168,8 @@ class HomePage extends React.Component<HomePageProps, HomePageState, {}> {
                 index={i}
                 removeable={this.state.locationsRemoveable}
                 removeLocation={this.removeLocation}
+                speedUnit={this.state.speedUnit}
+                tempUnit={this.state.tempUnit}
               />
             </React.Fragment>
           ))}
