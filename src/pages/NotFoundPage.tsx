@@ -1,11 +1,15 @@
 import * as React from 'react';
 
-export default class NotFoundPage extends React.PureComponent<{}> {
+class NotFoundPage extends React.Component<{}> {
   render() {
     return (
-      <div>
-        <h2>Sorry, we can't find the page you're looking for.</h2>
+      <div className="not-found">
+        <h1>Looks like you're lost...</h1>
+        {/* <h4><a>Return to the wind forecast</a></h4> */}
+        <div className="wind-direction"></div>
       </div>
     );
   }
 }
+
+export default NotFoundPage;

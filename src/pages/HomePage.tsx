@@ -6,7 +6,6 @@ import * as locationsActions from '../actions/locationsActions';
 import AppState from '../interfaces/AppState';
 import LocationForm from '../forms/LocationForm';
 import LocationItem from '../components/LocationItem';
-import LocationItemSentinel from '../components/LocationItem';
 import LocationsState from '../interfaces/LocationsState';
 
 interface HomePageProps {
@@ -15,9 +14,19 @@ interface HomePageProps {
   updateDate: Date;
 }
 
-class HomePage extends React.Component<HomePageProps, {}> {
+interface HomePageState {
+  date: Date;
+  updateDate: Date;
+}
+
+class HomePage extends React.Component<HomePageProps, HomePageState, {}> {
   constructor(props: any) {
     super(props);
+
+    this.state = {
+      date: new Date(),
+      updateDate: new Date()
+    }
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.removeLocation = this.removeLocation.bind(this);
@@ -30,6 +39,7 @@ class HomePage extends React.Component<HomePageProps, {}> {
     // If the location already exists don't add it again
     if (locations.locations !== undefined) {
       const exists = locations.locations.some((el) => {
+ 
         return el.name === locationToAdd.name;
       });
 
@@ -45,7 +55,13 @@ class HomePage extends React.Component<HomePageProps, {}> {
   }
 
   componentDidMount() {
-    this.setState({ updateDate: true });
+    if (!this.state.updateDate) {
+      this.setState({ updateDate: new Date() });
+    }
+    setInterval(() => {
+      this.setState({ date: new Date() });
+    }, 1000);
+    
   }
 
   removeLocation(index: number) {
@@ -63,39 +79,28 @@ class HomePage extends React.Component<HomePageProps, {}> {
       return <LocationForm onSubmit={this.handleSubmit} />;
     }
 
-    let columns = Math.floor((window.innerWidth - (window.innerWidth * 0.03)) / 540);
-
-    let sentinels = [];
-
-    for (let i = 0; i < columns - 1; i++) {
-      sentinels.push('SENTINEL');
-    }
-
-    console.log(columns, sentinels);
-
-    let updateDate = new Date("July 14, 2020, 12:15");
-    let now = new Date();
+    
+    let updateDate: Date = new Date("July 14, 2020, 12:15");
+    let now: Date = new Date();
     setInterval(function() {
       now = new Date();
     }, 1000);
     
 
-    let date = `${(now.getDate())}/${(now.getMonth() + 1)}/${(now.getFullYear())}`;
-    let time = now.toString().substr(16, 8);
+    let date: string = `${(now.getDate())}/${(now.getMonth() + 1)}/${(now.getFullYear())}`;
+    let time: string = now.toString().substr(16, 8);
 
-    let ONE_SEC = 1000;
-    let ONE_MIN = 60 * 1000;
-    let ONE_HOUR = 60 * 60 * 1000;
-    let ONE_DAY = 24 * 60 * 60 * 1000;
+    let ONE_SEC: number = 1000;
+    let ONE_MIN: number = 60 * 1000;
+    let ONE_HOUR: number = 60 * 60 * 1000;
+    let ONE_DAY: number = 24 * 60 * 60 * 1000;
 
-    let difference  = now.getTime() - updateDate.getTime();
+    let difference: number  = now.getTime() - this.state.updateDate.getTime();
 
-    let days = Math.floor(difference / ONE_DAY);
-    let hours = Math.floor((difference - (days * ONE_DAY)) / ONE_HOUR);
-    let mins = Math.floor((difference - ((days * ONE_DAY) + (hours * ONE_HOUR))) / ONE_MIN);
-    let secs = Math.floor((difference - ((days * ONE_DAY) + (hours * ONE_HOUR) + (mins * ONE_MIN))) / ONE_SEC);
-
-    console.log(difference, days * ONE_DAY, hours);
+    let days: number = Math.floor(difference / ONE_DAY);
+    let hours: number = Math.floor((difference - (days * ONE_DAY)) / ONE_HOUR);
+    let mins: number = Math.floor((difference - ((days * ONE_DAY) + (hours * ONE_HOUR))) / ONE_MIN);
+    let secs: number = Math.floor((difference - ((days * ONE_DAY) + (hours * ONE_HOUR) + (mins * ONE_MIN))) / ONE_SEC);
 
     return (
       <>
@@ -118,15 +123,7 @@ class HomePage extends React.Component<HomePageProps, {}> {
             />
           </React.Fragment>
         ))}
-
-        {/* {sentinels.map((item, i) => (
-            <React.Fragment key={i}>
-            <LocationItemSentinel
-              index={i}
-              removeLocation={this.removeLocation}
-            />
-          </React.Fragment>
-        ))} */}
+        {locations.locations.length < 1 ? <p>Locations you add will appear in this list</p> : null}
       </div>
       </>
     );
